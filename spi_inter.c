@@ -8,6 +8,7 @@
  *    It will send and receive one byte (0xFF) over SPI.
  *
  ******************************************************************************/
+/****First comment for SPI***/
  
 #include <stdlib.h>
 #include <stdio.h>
