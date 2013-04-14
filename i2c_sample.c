@@ -1,6 +1,7 @@
 #include <linux/i2c-dev.h>
 #include<linux/i2c.h>
 
+/*I2C driver code*/
 int deviceHandle;
 char buffer[7];
 
