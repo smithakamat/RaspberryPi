@@ -2,8 +2,11 @@
 #include "gyro.h"
 
 
-void main(void)
+int main()
 {
+	/*Open and configure SPI channel --> /dev/spidev0.0 */
+   	spi_open();
+
 	/*Initialze the hardware control registers*/	
 	init();
 	
@@ -19,9 +22,8 @@ void main(void)
 
         }
 
-
+	close(spi_fd);
 
 }
-
 
 

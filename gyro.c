@@ -1,4 +1,7 @@
-/*********************Header files****************************/
+
+/********************************************************
+***********************Header files**********************
+*********************************************************/
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,7 +14,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <time.h>
-#include <unistd.h>
 //#include <linux/delay.h> /*the compiler is not accepting this header file - fatal error 
 
 /*User-defined Headers*/
@@ -26,7 +28,7 @@ unsigned int xlow, xhigh, ylow, yhigh, zlow, zhigh;
 /*Declaring the SPI file descriptor*/
 int spi_fd;
 
-/*Sending 1byte and write the received byte into the send buffer*/
+/*Sending 2 bytes and writing the received bytes into the send buffer*/
 unsigned int spi_wr_2b(unsigned int data, int delay)
 {
 	int ret = 0;
@@ -48,6 +50,51 @@ unsigned int spi_wr_2b(unsigned int data, int delay)
 	return data;
 	
 	
+}
+
+/*spi_open
+*      - Open the given SPI channel and configure it.
+*      - there are normally two SPI devices on your PI:
+*        /dev/spidev0.0: activates the CS0 pin during transfer
+*        /dev/spidev0.1: activates the CS1 pin during transfer
+*
+*/
+int spi_open(void)
+{
+  	int _mode  = SPI_MODE;
+  	int _bpw   = SPI_BITS_PER_WORD;
+  	int _speed = SPI_MAX_SPEED;
+ 
+  	if((spi_fd = open("/dev/spidev0.0", O_RDWR)) < 0)
+	{
+	    printf("Error opening the spi device\n\r");
+	    return -1;
+	}
+	else
+	{
+	    printf("The SPI device has been opened successfully\n\r");
+	}
+	 
+	 if (ioctl (spi_fd, SPI_IOC_WR_MODE, &_mode) < 0)
+	     return -1 ;
+
+	 if (ioctl (spi_fd, SPI_IOC_RD_MODE, &_mode) < 0)
+	     return -1 ;
+	 
+	 if (ioctl (spi_fd, SPI_IOC_WR_BITS_PER_WORD, &_bpw) < 0)
+	     return -1 ;
+
+	 if (ioctl (spi_fd, SPI_IOC_RD_BITS_PER_WORD, &_bpw) < 0)
+	     return -1 ;
+	 
+	 if (ioctl (spi_fd, SPI_IOC_WR_MAX_SPEED_HZ, &_speed) < 0)
+	     return -1 ;
+
+	 if (ioctl (spi_fd, SPI_IOC_RD_MAX_SPEED_HZ, &_speed) < 0)
+	     return -1 ;
+	 
+	 return 0;
+	 
 }
 
 /*Function to initialize the control registers with their initial values*/
@@ -82,15 +129,10 @@ void init(void)
 	temp = (temp << 8) + 0x42;
 	spi_wr_2b(temp,0);
 
-	/*Configure the FIFO in Stream mode*/
-	temp = FIFO_CTRL_REG | SPI_WRITE_MASK | SPI_ADDR_UNCHANGED;
-	temp = (temp << 8) + 0x40;
-	spi_wr_2b(temp,0);
-
 	/*Provide a delay of 5ms for the gyro sensor to write va;ues from flash to the hardware registers*/
 	//mdelay(5); //CHECK IF mdelay() works???
 	sleep(1);
-
+	
 	/*Pull the gyro sendor out of power down mode to normal mode*/
 	temp = CTRL_REG1 | SPI_WRITE_MASK | SPI_ADDR_UNCHANGED;
 	temp = (temp << 8) + 0x0F;
@@ -161,4 +203,3 @@ void read_gyro_data(void)
 
 
         
-

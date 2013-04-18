@@ -37,12 +37,13 @@
 /*Defining the address of the fifo control register*/
 #define FIFO_CTRL_REG 0x2E
 
+int spi_fd;
 
 unsigned int spi_wr_2b(unsigned int data, int delay);
+int spi_open(void);
 void init(void);
 void isDataRdy(void);
 void read_gyro_data(void);
 
 
 #endif /*GYRO_H_*/
-
