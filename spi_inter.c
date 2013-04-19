@@ -23,7 +23,7 @@
  
 // some defines for our SPI config
 #define SPI_MODE              SPI_MODE_0    /// SPI Mode
-#define SPI_BITS_PER_WORD     8        /// we're sending bytewise
+#define SPI_BITS_PER_WORD     8       /// we're sending bytewise
 #define SPI_MAX_SPEED         1000000        /// maximum speed is 1 Mhz
  
 //global spi file descriptor
@@ -32,7 +32,7 @@ int spi_fd;
 /* spi_wr_1b:
 *    - sending one byte and write the received byte into the send buffer.    
 */
-char spi_wr_1b(unsigned char data, 
+char spi_wr_1b(unsigned int data, 
                int delay)
 {
     int ret = 0;
@@ -58,30 +58,36 @@ char spi_wr_1b(unsigned char data,
 *        /dev/spidev0.1: activates the CS1 pin during transfer
 *
 */
-int spi_open(void)
+int spi_open(char *dev)
 {
   int _mode  = SPI_MODE;
   int _bpw   = SPI_BITS_PER_WORD;
   int _speed = SPI_MAX_SPEED;
- 
-  if((spi_fd = open("/dev/spidev0.0", O_RDWR)) <  0){
-    printf("error opening %s\n",dev);
+    
+  if((spi_fd = open(dev,O_RDWR)) <  0){
+    printf("The file descriptor is %d\n",spi_fd);
+    printf("error opening /dev/spidev0.0 \n");
     return -1;
   }else{
-    printf("%s opened successfully ;-)\n",dev);
+    printf(" opened successfully ;-)\n");
   }
  
   if (ioctl (spi_fd, SPI_IOC_WR_MODE, &_mode) <  0) 
       return -1 ;
+      printf("1\n");
   if (ioctl (spi_fd, SPI_IOC_RD_MODE, &_mode) <  0) 
       return -1 ;
+      printf("2\n");
   if (ioctl (spi_fd, SPI_IOC_WR_BITS_PER_WORD, &_bpw) <  0) 
       return -1 ;
+      printf("3\n");
   if (ioctl (spi_fd, SPI_IOC_RD_BITS_PER_WORD, &_bpw) <  0) 
       return -1 ;
+      printf("4\n");
  
   if (ioctl (spi_fd, SPI_IOC_WR_MAX_SPEED_HZ, &_speed) <  0) 
       return -1 ;
+      printf("5\n");
   if (ioctl (spi_fd, SPI_IOC_RD_MAX_SPEED_HZ, &_speed) <  0) 
       return -1 ;
  
@@ -89,9 +95,9 @@ int spi_open(void)
  
 }
  
-int main(void)
+int main(int argc, char* argv[])
 {
-    unsigned char data = 0xFF;
+    unsigned int data = 0xAAAA;
  /*
     if(argc <  1){
         printf("too few args, try %s /dev/spidev0.0\n",argv[0]);
@@ -99,12 +105,12 @@ int main(void)
     }
  */
     // open and configure SPI channel. (/dev/spidev0.0 for example)
-    if(spi_open() <  0){
+    if((spi_open(argv[1])) <  0){
         printf("spi_open failed\n");
         return -1;
     }
  
-    // send one Byte (0xFF) - receive one byte. 
+    // send one Byte (0xAAAA) - receive one byte. 
     spi_wr_1b(data,0);
     printf("RECEIVED: %.2X\n",data);
  

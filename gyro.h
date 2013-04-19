@@ -10,11 +10,14 @@
 /*Defining the SPI parameters*/
 #define SPI_MODE          SPI_MODE_0
 #define SPI_MAX_SPEED     1000000
-#define SPI_BITS_PER_WORD 16
+#define SPI_BITS_PER_WORD 8
 
 /*************************************************************************************************
 ****Definition of the addresses of the of the hardware registers in L3G4200D**********************
 **************************************************************************************************/
+
+/*Defining the address of the WHO_AM_I device identification register*/
+#define WHO_AM_I 0x0F
 
 /*Defining the address of control registers*/
 #define CTRL_REG1 0x20
@@ -39,7 +42,7 @@
 
 int spi_fd;
 
-unsigned int spi_wr_2b(unsigned int data, int delay);
+unsigned int spi_wr_1b(unsigned int data, int delay);
 int spi_open(void);
 void init(void);
 void isDataRdy(void);
