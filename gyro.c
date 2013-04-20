@@ -21,8 +21,8 @@
 
 
 /*Defining global variables*/
-unsigned int temp, read_status;
-unsigned int xlow, xhigh, ylow, yhigh, zlow, zhigh;
+unsigned char temp, read_status;
+unsigned char xlow, xhigh, ylow, yhigh, zlow, zhigh;
 unsigned int xtotal, ytotal, ztotal;
 //unsigned int devIdentify;
 
@@ -32,13 +32,14 @@ unsigned int ctrlreg1_val, ctrlreg2_val;
 int spi_fd;
 
 /*Sending 1 byte and writing the received byte into the send buffer*/
-unsigned int spi_wr_1b(unsigned int data, int delay)
+unsigned char  spi_wr_1b(unsigned char data, int delay)
 {
 	int ret = 0;
+	unsigned char ret_data=0x00;
 	struct spi_ioc_transfer spi;
 	
 	spi.tx_buf = (unsigned long)&data;
-	spi.rx_buf = (unsigned long)&data;
+	spi.rx_buf = (unsigned long)&ret_data;
 	spi.len = 1;
 	spi.delay_usecs = delay;
 	spi.speed_hz = SPI_MAX_SPEED;
@@ -50,7 +51,7 @@ unsigned int spi_wr_1b(unsigned int data, int delay)
 		printf("\n\rThe data transmitted is %x", data);
 	}
 	
-	return data;
+	return ret_data;
 	
 	
 }
@@ -104,6 +105,8 @@ int spi_open(void)
 void init(void)
 {
 	unsigned int data;
+	unsigned char fullscale = 2;
+	fullscale = fullscale & 0x03;
 
 	/*Turn on the gyro sensor, place it in normal mode and enable X,Y and Z*/
 	/*ODR = 100Hz, Low pass filter1 (LPF1) cut off = 32Hz, Low pass filter2 (LPF2) cut off = 12.5Hz*/
@@ -146,7 +149,7 @@ void init(void)
 	temp = CTRL_REG3 | SPI_WRITE_MASK | SPI_ADDR_UNCHANGED;
 	/*Set the address of CRL_REG3*/
 	spi_wr_1b(temp,0);
-	temp = 0x00;
+	temp = 0x08;
 	/*Write data into CTRL_REG3*/
 	spi_wr_1b(temp,0);
 
@@ -154,7 +157,7 @@ void init(void)
 	temp = CTRL_REG4 | SPI_WRITE_MASK | SPI_ADDR_UNCHANGED;
 	/*Set the address of CTRL_REG4*/
 	spi_wr_1b(temp,0);
-	temp = 0x00;
+	temp = fullscale << 4;
 	/*Write data into CTRL_REG4*/
 	spi_wr_1b(temp,0);
 
@@ -163,7 +166,7 @@ void init(void)
 	temp = CTRL_REG5 | SPI_WRITE_MASK | SPI_ADDR_UNCHANGED;
 	/*Set the address of CTRL_REG5*/
 	spi_wr_1b(temp,0);
-	temp = 0x42;
+	temp = 0x00;
 	/*Write the data into CTRL_REG5*/
 	spi_wr_1b(temp,0);
 

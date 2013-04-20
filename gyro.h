@@ -42,7 +42,7 @@
 
 int spi_fd;
 
-unsigned int spi_wr_1b(unsigned int data, int delay);
+unsigned char spi_wr_1b(unsigned char data, int delay);
 int spi_open(void);
 void init(void);
 void isDataRdy(void);
